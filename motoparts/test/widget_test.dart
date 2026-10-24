@@ -1,30 +1,62 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:motoparts/main.dart';
+import 'package:motoparts/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('user can sign in, navigate, and sign out', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MotoPartsApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('Selamat datang\nkembali.'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.enterText(find.byType(TextFormField).at(0), 'raka@email.com');
+    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
+    await tester.tap(find.text('Masuk'));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Halo, Raka 👋'), findsOneWidget);
+    expect(find.text('Ringkasan toko'), findsOneWidget);
+
+    await tester.tap(find.text('Produk').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Katalog produk'), findsOneWidget);
+
+    await tester.tap(find.text('Profil').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ubah password'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField).at(0), 'password123');
+    await tester.enterText(find.byType(TextFormField).at(1), 'newpassword123');
+    await tester.enterText(find.byType(TextFormField).at(2), 'newpassword123');
+    await tester.ensureVisible(find.text('Simpan password'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Simpan password'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Atur password'), findsNothing);
+    await tester.tap(find.text('Profil').last);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Keluar dari akun'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Keluar dari akun'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Keluar').last);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).at(1), 'password123');
+    await tester.ensureVisible(find.text('Masuk'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Masuk'));
+    await tester.pumpAndSettle();
+    expect(find.text('Selamat datang\nkembali.'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextFormField).at(1), 'newpassword123');
+    await tester.ensureVisible(find.text('Masuk'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Masuk'));
+    await tester.pumpAndSettle();
+    expect(find.text('Halo, Raka 👋'), findsOneWidget);
   });
 }
